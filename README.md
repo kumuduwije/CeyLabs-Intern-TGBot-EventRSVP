@@ -88,3 +88,17 @@ CeyLabs-TGBot-EventRSVPBot/
 - `README.md` contains detailed instructions on setting up and running the bot.
 - `.gitignore` specifies files and directories to be ignored by Git.
 - `composer.json` lists dependencies for PHP.
+
+
+
+## Join Our Telegram Group
+
+We have created a Telegram group for testing, discussions, and support related to this project. Feel free to join the group to collaborate with other users and developers, ask questions, and share your feedback.
+
+### How to Join
+
+1. **Click the Invite Link:** Use the following link to join our Telegram group: [Join Telegram Group](https://t.me/+9YbDLZHLxYs5NDZl)
+2. **Follow the Instructions:** If you don't already have a Telegram account, you will be prompted to create one. If you already have an account, you will be redirected to the group.
+
+We look forward to your participation and contributions!
+
