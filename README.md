@@ -97,7 +97,7 @@ We have created a Telegram group for testing, discussions, and support related t
 
 ### How to Join
 
-1. **Click the Invite Link:** Use the following link to join our Telegram group: [Join Telegram Group](https://t.me/+9YbDLZHLxYs5NDZl)
+1. **Click the Invite Link:** Use the following link to join our Telegram group: [Join Telegram Group](https://t.me/+QJe-QXCJDPtkNDc1)
 2. **Follow the Instructions:** If you don't already have a Telegram account, you will be prompted to create one. If you already have an account, you will be redirected to the group.
 
 We look forward to your participation and contributions!
