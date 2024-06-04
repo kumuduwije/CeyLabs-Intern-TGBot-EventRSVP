@@ -5,18 +5,18 @@ $eventDetails = array(
     'name' => 'Tech Conference 2024',
     'date' => '2024-08-15',
     'time' => '10:00 AM',
-    'location' => 'Tech Convention Center, San Francisco',
+    'location' => 'Tech Convention Center Colombo,  Sri Lanka',
     'description' => 'A premier conference showcasing the latest in technology and innovation.',
 );
 
 // Function to get event details
 function getEventDetails() {
     global $eventDetails;
-    $details = "Event Name: " . $eventDetails['name'] . "\n";
-    $details .= "Date: " . $eventDetails['date'] . "\n";
-    $details .= "Time: " . $eventDetails['time'] . "\n";
-    $details .= "Location: " . $eventDetails['location'] . "\n";
-    $details .= "Description: " . $eventDetails['description'];
+    $details = "<b>Event Name:</b> " . $eventDetails['name'] . "\n";
+    $details .= "<b>Date:</b> " . $eventDetails['date'] . "\n";
+    $details .= "<b>Time:</b> " . $eventDetails['time'] . "\n";
+    $details .= "<b>Location:</b> " . $eventDetails['location'] . "\n";
+    $details .= "<b>Description:</b> " . $eventDetails['description'];
     return $details;
 }
 
@@ -35,9 +35,13 @@ function processEventInfoMessage($message) {
     $chat_id = $message['chat']['id'];
     $text = $message['text'];
 
-    if (strpos($text, "/eventinfo") === 0) {
+    if (strpos($text, "/eventinfo") === 0 || strpos($text, "/start") === 0) {
         $eventDetails = getEventDetails();
-        apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => $eventDetails));
+        //apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => $eventDetails));
+        
+        // apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'Below are the new event details 👏'));
+        
+        apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => $eventDetails, "parse_mode" => "HTML")); // parse mode is HTML
     } elseif (strpos($text, "/updateevent") === 0) {
         // For simplicity, assuming the update command is in the format:
         // /updateevent name,date,time,location,description

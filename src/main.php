@@ -1,15 +1,35 @@
 <?php
 
-
-//  configuration from config.json
 $config = json_decode(file_get_contents('config.json'), true);
 
+// Access configs from config.json
 define('BOT_TOKEN', $config['bot_token']);
+define('BOT_USERNAME', $config['bot_username']);
 define('API_URL', 'https://api.telegram.org/bot'.BOT_TOKEN.'/');
+define("WEBHOOK_URL", $config['webhook_url']);
 
+// Require other functionalities 
 require_once 'utils/registration.php';
 require_once 'utils/event_info.php';
+require_once 'utils/group_invitation.php';
 require_once 'utils/database.php';
+
+// Setting webhook URL
+$webhook_api = API_URL . 'setWebhook?url=' . WEBHOOK_URL;
+$webhook_response = file_get_contents($webhook_api);
+echo $webhook_response;
+
+echo "<br/> \n\n";
+
+// Get webhook URL info
+$webhook_info_url = API_URL . 'getWebhookInfo';
+$webhook_info_response = file_get_contents($webhook_info_url);
+$webhook_info = json_decode($webhook_info_response, true);
+
+echo $webhook_info_response;
+
+
+
 
 function apiRequestWebhook($method, $parameters) {
   if (!is_string($method)) {
@@ -123,28 +143,65 @@ function apiRequestJson($method, $parameters) {
   return exec_curl_request($handle);
 }
 
+
+function startCommands($chat_id, $first_name) {
+    
+    $greeting = "Hello, $first_name! How can I assist you today? ☺️";
+    
+    apiRequestJson("sendMessage", array(
+        'chat_id' => $chat_id,
+        'text' => $greeting ,
+        'reply_markup' => array(
+            'inline_keyboard' => array(
+                array(
+                    array('text' => 'Start', 'callback_data' => 'start'),
+                    array('text' => 'Help', 'callback_data' => 'help')
+                ),
+                array(
+                    array('text' => 'Register', 'callback_data' => 'register')
+                ),
+                array(
+                    array('text' => 'Event Info', 'callback_data' => 'eventInfo')
+                )
+            )
+        )
+    ));
+}
+
 function processMessage($message) {
   $message_id = $message['message_id'];
   $chat_id = $message['chat']['id'];
+  $first_name = $message['chat']['first_name']; // Get the user's first name
   if (isset($message['text'])) {
     $text = $message['text'];
 
     if (strpos($text, "/start") === 0) {
-      apiRequestJson("sendMessage", array('chat_id' => $chat_id, "text" => 'Hello! How can I assist you today?', 'reply_markup' => array(
-        'keyboard' => array(
-          array('/start', '/help'),
-          array('/register')
-        ),
-        'one_time_keyboard' => true,
-        'resize_keyboard' => true)));
+        startCommands($chat_id,$first_name);
+        
+
     } else if ($text === "Hello" || $text === "Hi") {
       apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'Nice to meet you'));
     } else if (strpos($text, "/help") === 0) {
-      $helpMessage = "Usage:\n";
-      $helpMessage .= "/start - Start interacting with the bot\n";
-      $helpMessage .= "/help - Provides help and usage instructions\n";
-      $helpMessage .= "/register - Register for the event\n";
-      apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => $helpMessage));
+        
+        $helpMessage = "Here are the commands you can use 👇:\n";
+            apiRequestJson("sendMessage", array(
+                'chat_id' => $chat_id,
+                'text' => $helpMessage,
+                'reply_markup' => json_encode(array(
+                    'inline_keyboard' => [
+                        [['text' => '/start - Start the bot', 'callback_data' => 'start']],
+                        [['text' => '/help - Bot use instructions', 'callback_data' => 'help']],
+                        [['text' => '/register - Register for the event', 'callback_data' => 'register']],
+                        [['text' => '/eventinfo - Event information', 'callback_data' => 'eventInfo']]
+                    ]
+                ))
+            ));
+        
+        
+
+      
+    } else if (strpos($text, "/eventinfo") === 0 || strpos($text, "/updateevent") === 0) {
+      processEventInfoMessage($message);
     } else {
       processRegistration($message); // Call the function from registration.php
     }
@@ -153,7 +210,29 @@ function processMessage($message) {
   }
 }
 
-define('WEBHOOK_URL', 'https://wijewardeneindustries.com/EventTicketingTelegramBot/index.php');
+function processCallbackQuery($callback_query) {
+  $chat_id = $callback_query['message']['chat']['id'];
+  $data = $callback_query['data'];
+  $first_name = $callback_query['from']['first_name']; // Get the user's first name
+
+  if ($data === 'start') {
+    apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'Starting interaction...'));
+  
+
+    startCommands($chat_id,$first_name);
+    
+    // Handle start command logic
+  } elseif ($data === 'help') {
+    processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/help'));
+  } elseif ($data === 'register') {
+    processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/register'));
+  } elseif ($data === 'eventInfo') {
+    processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/eventinfo'));
+  }
+}
+
+//define('WEBHOOK_URL', 'https://wijewardeneindustries.com/EventTicketingTelegramBot/main.php');
+
 
 if (php_sapi_name() == 'cli') {
   apiRequest('setWebhook', array('url' => isset($argv[1]) && $argv[1] == 'delete' ? '' : WEBHOOK_URL));
@@ -169,12 +248,8 @@ if (!$update) {
 
 if (isset($update["message"])) {
   processMessage($update["message"]);
+} elseif (isset($update["callback_query"])) {
+  processCallbackQuery($update["callback_query"]);
 }
 
 ?>
-
-
-// this is connected to the utills/registration.php file
-
-// https://api.telegram.org/bot7245509649:AAFmNUn07iZaMZfroczuoK6CKEV0ZR1kXW0/getUpdates
-// https://api.telegram.org/bot7245509649:AAFmNUn07iZaMZfroczuoK6CKEV0ZR1kXW0/getMe  -> old API
