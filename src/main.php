@@ -28,6 +28,36 @@ $webhook_info = json_decode($webhook_info_response, true);
 
 echo $webhook_info_response;
 
+// Set bot commands
+$commands = [
+    ['command' => 'start', 'description' => 'Start the bot'],
+    ['command' => 'help', 'description' => 'Bot use instructions'],
+    ['command' => 'register', 'description' => 'Register for the event'],
+    ['command' => 'eventinfo', 'description' => 'Event information']
+];
+
+$setCommandsPayload = [
+    'commands' => json_encode($commands)
+];
+
+$setCommandsUrl = "https://api.telegram.org/bot".BOT_TOKEN."/setMyCommands";
+
+$ch = curl_init($setCommandsUrl);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $setCommandsPayload);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$result = curl_exec($ch);
+curl_close($ch);
+
+if ($result === false) {
+    error_log("Error setting commands: " . curl_error($ch));
+} else {
+    echo "Commands set successfully!";
+}
+
+// END Command setting
+
 function apiRequestWebhook($method, $parameters) {
   if (!is_string($method)) {
     error_log("Method name must be a string\n");
