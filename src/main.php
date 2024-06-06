@@ -28,9 +28,6 @@ $webhook_info = json_decode($webhook_info_response, true);
 
 echo $webhook_info_response;
 
-
-
-
 function apiRequestWebhook($method, $parameters) {
   if (!is_string($method)) {
     error_log("Method name must be a string\n");
@@ -143,14 +140,13 @@ function apiRequestJson($method, $parameters) {
   return exec_curl_request($handle);
 }
 
-
 function startCommands($chat_id, $first_name) {
     
-    $greeting = "Hello, $first_name! How can I assist you today? ☺️";
+    $greeting = "Tell me $first_name! How can I assist you today? ☺️";
     
     apiRequestJson("sendMessage", array(
         'chat_id' => $chat_id,
-        'text' => $greeting ,
+        'text' => $greeting,
         'reply_markup' => array(
             'inline_keyboard' => array(
                 array(
@@ -160,11 +156,27 @@ function startCommands($chat_id, $first_name) {
                 array(
                     array('text' => 'Register', 'callback_data' => 'register')
                 ),
-                array(
-                    array('text' => 'Event Info', 'callback_data' => 'eventInfo')
-                )
+                // array(
+                //     array('text' => 'Event Info', 'callback_data' => 'eventInfo')
+                // )
             )
         )
+    ));
+}
+
+function sendHelpMessage($chat_id) {
+    $helpMessage = "Here are the commands you can use 👇:\n";
+    apiRequestJson("sendMessage", array(
+        'chat_id' => $chat_id,
+        'text' => $helpMessage,
+        'reply_markup' => json_encode(array(
+            'inline_keyboard' => [
+                [['text' => '/start - Event detials', 'callback_data' => 'start']],
+                [['text' => '/help - Bot use instructions', 'callback_data' => 'help']],
+                [['text' => '/register - Register for the event', 'callback_data' => 'register']],
+                [['text' => '/eventinfo - Event information', 'callback_data' => 'eventInfo']]
+            ]
+        ))
     ));
 }
 
@@ -176,34 +188,41 @@ function processMessage($message) {
     $text = $message['text'];
 
     if (strpos($text, "/start") === 0) {
+        
+        apiRequest("sendMessage", array('chat_id' => $chat_id, "text" =>  "Hello! $first_name How are you doing?😄. Below are the new event details 👏"));
+        processEventInfoMessage($message);
+        // Then show commands links
         startCommands($chat_id,$first_name);
         
-
-    } else if ($text === "Hello" || $text === "Hi") {
-      apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'Nice to meet you'));
+    } else if ($text === "Hello" || $text === "Hi" || $text === "hi" || $text === "hello") {
+      apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => "Hi $first_name! Nice to meet you ☺️ "));
     } else if (strpos($text, "/help") === 0) {
         
         $helpMessage = "Here are the commands you can use 👇:\n";
-            apiRequestJson("sendMessage", array(
-                'chat_id' => $chat_id,
-                'text' => $helpMessage,
-                'reply_markup' => json_encode(array(
-                    'inline_keyboard' => [
-                        [['text' => '/start - Start the bot', 'callback_data' => 'start']],
-                        [['text' => '/help - Bot use instructions', 'callback_data' => 'help']],
-                        [['text' => '/register - Register for the event', 'callback_data' => 'register']],
-                        [['text' => '/eventinfo - Event information', 'callback_data' => 'eventInfo']]
-                    ]
-                ))
-            ));
         
+        sendHelpMessage($chat_id); // Call /help command function
         
+        // apiRequestJson("sendMessage", array(
+        //     'chat_id' => $chat_id,
+        //     'text' => $helpMessage . sendHelpMessage($chat_id)
+        // ));
+                
+    
 
-      
     } else if (strpos($text, "/eventinfo") === 0 || strpos($text, "/updateevent") === 0) {
+        
+        apiRequest("sendMessage", array('chat_id' => $chat_id, "text" =>  "$first_name Below are the new event details 👏"));
       processEventInfoMessage($message);
-    } else {
-      processRegistration($message); // Call the function from registration.php
+      
+    } else if (strpos($text, "/register") === 0) {
+      processRegistration($message); // Start the registration process
+    } else if (checkUserState($chat_id)) {
+      continueRegistration($message); // Handle registration continuation
+    } else { // if user entered something else
+        
+      apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => "Sorry! $first_name, I don't understand. Try to use bellow commands."));
+      sendHelpMessage($chat_id); // Call /help command function
+      
     }
   } else {
     apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'I understand only text messages'));
@@ -216,12 +235,7 @@ function processCallbackQuery($callback_query) {
   $first_name = $callback_query['from']['first_name']; // Get the user's first name
 
   if ($data === 'start') {
-    apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'Starting interaction...'));
-  
-
-    startCommands($chat_id,$first_name);
-    
-    // Handle start command logic
+    startCommands($chat_id, $first_name);
   } elseif ($data === 'help') {
     processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/help'));
   } elseif ($data === 'register') {
@@ -230,9 +244,6 @@ function processCallbackQuery($callback_query) {
     processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/eventinfo'));
   }
 }
-
-//define('WEBHOOK_URL', 'https://wijewardeneindustries.com/EventTicketingTelegramBot/main.php');
-
 
 if (php_sapi_name() == 'cli') {
   apiRequest('setWebhook', array('url' => isset($argv[1]) && $argv[1] == 'delete' ? '' : WEBHOOK_URL));
