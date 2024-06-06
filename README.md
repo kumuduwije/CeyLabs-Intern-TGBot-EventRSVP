@@ -91,14 +91,15 @@ CeyLabs-TGBot-EventRSVPBot/
 
 
 
-## Join Our Telegram Group
+## Join Our Telegram Channel
 
 We have created a Telegram group for testing, discussions, and support related to this project. Feel free to join the group to collaborate with other users and developers, ask questions, and share your feedback.
 
 ### How to Join
 
-1. **Click the Invite Link:** Use the following link to join our Telegram group: [Join Telegram Group](https://t.me/+QJe-QXCJDPtkNDc1)
-2. **Follow the Instructions:** If you don't already have a Telegram account, you will be prompted to create one. If you already have an account, you will be redirected to the group.
+1. **Click the Invite Link:** Use the following link to join our Telegram channel: [Join Telegram Channel](https://t.me/kayeventbot)
+2. **Follow the Instructions:** If you don't already have a Telegram account, you will be prompted to create one. If you already have an account, you will be redirected to the channel.
+3. **Bot Commands:** You can see the list of bot commands in the channel and the link for the bot is pinned above.
 
 We look forward to your participation and contributions!
 
