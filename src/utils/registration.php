@@ -1,8 +1,12 @@
 <?php
 
+// define('REGISTRATION_FILE', 'registration_steps.json'); // File to store registration data
+// require_once 'group_invitation.php';
+// require_once 'utils/database.php';
+
 define('REGISTRATION_FILE', 'registration_steps.json'); // File to store registration data
-require_once 'group_invitation.php';
-require_once 'utils/database.php';
+require_once __DIR__ . '/group_invitation.php';
+require_once __DIR__ . '/database.php';
 
 // Load registration steps from the JSON file
 function loadRegistrationSteps() {
@@ -32,7 +36,7 @@ function isValidEmail($email) {
 
 // Validate name format (only letters)
 function isValidName($name) {
-    return preg_match('/^[a-zA-Z]+$/', $name);
+    return preg_match('/^[a-zA-Z ]+$/', $name);
 }
 
 // Continue the registration process based on the current step

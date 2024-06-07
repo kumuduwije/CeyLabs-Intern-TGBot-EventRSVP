@@ -1,27 +1,27 @@
 <?php
 
-define('DATABASE_FILE', 'database.json');
+define('DEFAULT_DATABASE_FILE', __DIR__ . '/../database.json');
 
 // Load data from the JSON file
-function loadDatabase() {
-    if (!file_exists(DATABASE_FILE)) {
+function loadDatabase($databaseFile = DEFAULT_DATABASE_FILE) {
+    if (!file_exists($databaseFile)) {
         return array();
     }
-    $json = file_get_contents(DATABASE_FILE);
+    $json = file_get_contents($databaseFile);
     return json_decode($json, true);
 }
 
 // Save data to the JSON file
-function saveDatabase($data) {
+function saveDatabase($data, $databaseFile = DEFAULT_DATABASE_FILE) {
     $json = json_encode($data, JSON_PRETTY_PRINT);
-    file_put_contents(DATABASE_FILE, $json);
+    file_put_contents($databaseFile, $json);
 }
 
 // Save user information and ticket details
-function saveUserInfo($userInfo) {
-    $data = loadDatabase();
+function saveUserInfo($userInfo, $databaseFile = DEFAULT_DATABASE_FILE) {
+    $data = loadDatabase($databaseFile);
     $data[] = $userInfo;
-    saveDatabase($data);
+    saveDatabase($data, $databaseFile);
 }
 
 ?>
