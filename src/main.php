@@ -1,6 +1,7 @@
 <?php
 
-// $config = json_decode(file_get_contents('/src/config.json'), true);
+//$config = json_decode(file_get_contents('config.json'), true);
+
 $configFile =  __DIR__ . '/config.json';
 
 // Check if the config file exists
@@ -195,8 +196,8 @@ function startCommands($chat_id, $first_name) {
         'reply_markup' => array(
             'inline_keyboard' => array(
                 array(
-                    array('text' => 'Start', 'callback_data' => 'start'),
-                    array('text' => 'Help', 'callback_data' => 'help')
+                    array('text' => 'Help', 'callback_data' => 'help'),
+                    array('text' => 'Event Info', 'callback_data' => 'eventInfo'),
                 ),
                 array(
                     array('text' => 'Register', 'callback_data' => 'register')
@@ -209,17 +210,20 @@ function startCommands($chat_id, $first_name) {
     ));
 }
 
-function sendHelpMessage($chat_id) {
-    $helpMessage = "Here are the commands you can use 👇:\n";
+function sendHelpMessage($chat_id,$first_name) {
+    
+    $greeting = "Tell me $first_name! How can I assist you today? ☺️";
+    $helpMessage = "Here are the commands you can use:\n";
+    
     apiRequestJson("sendMessage", array(
         'chat_id' => $chat_id,
-        'text' => $helpMessage,
+        'text' =>   $greeting. "\n". $helpMessage ."\n",
         'reply_markup' => json_encode(array(
             'inline_keyboard' => [
-                [['text' => '/start - Event detials', 'callback_data' => 'start']],
-                [['text' => '/help - Bot use instructions', 'callback_data' => 'help']],
-                [['text' => '/register - Register for the event', 'callback_data' => 'register']],
-                [['text' => '/eventinfo - Event information', 'callback_data' => 'eventInfo']]
+                [['text' => '📅 Start - Greet & Event Details', 'callback_data' => 'start']],
+                [['text' => 'ℹ️ Help - Bot use instructions', 'callback_data' => 'help']],
+                [['text' => '📝 Register - Register for the event', 'callback_data' => 'register']],
+                // [['text' => '📋 Event Info', 'callback_data' => 'eventInfo']]
             ]
         ))
     ));
@@ -234,18 +238,20 @@ function processMessage($message) {
 
     if (strpos($text, "/start") === 0) {
         
-        apiRequest("sendMessage", array('chat_id' => $chat_id, "text" =>  "Hello! $first_name How are you doing?😄. Below are the new event details 👏"));
+        apiRequest("sendMessage", array('chat_id' => $chat_id, "text" =>  "Hello $first_name! How are you doing? 😄. Below are the new event details 👏"));
         processEventInfoMessage($message);
+        //sendHelpMessage($chat_id, $first_name);
+        
         // Then show commands links
-        startCommands($chat_id,$first_name);
+        // startCommands($chat_id,$first_name);
         
     } else if ($text === "Hello" || $text === "Hi" || $text === "hi" || $text === "hello") {
       apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => "Hi $first_name! Nice to meet you ☺️ "));
     } else if (strpos($text, "/help") === 0) {
         
-        $helpMessage = "Here are the commands you can use 👇:\n";
+        //$helpMessage = "Here are the commands you can use 👇:\n";
         
-        sendHelpMessage($chat_id); // Call /help command function
+        sendHelpMessage($chat_id, $first_name); // Call /help command function
         
         // apiRequestJson("sendMessage", array(
         //     'chat_id' => $chat_id,
@@ -256,7 +262,7 @@ function processMessage($message) {
 
     } else if (strpos($text, "/eventinfo") === 0 || strpos($text, "/updateevent") === 0) {
         
-        apiRequest("sendMessage", array('chat_id' => $chat_id, "text" =>  "$first_name Below are the new event details 👏"));
+        apiRequest("sendMessage", array('chat_id' => $chat_id, "text" =>  "$first_name! Below are the new event details 👏"));
       processEventInfoMessage($message);
       
     } else if (strpos($text, "/register") === 0) {
@@ -266,7 +272,7 @@ function processMessage($message) {
     } else { // if user entered something else
         
       apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => "Sorry! $first_name, I don't understand. Try to use bellow commands."));
-      sendHelpMessage($chat_id); // Call /help command function
+      sendHelpMessage($chat_id, $first_name); // Call /help command function
       
     }
   } else {
@@ -276,11 +282,19 @@ function processMessage($message) {
 
 function processCallbackQuery($callback_query) {
   $chat_id = $callback_query['message']['chat']['id'];
+  $message = $callback_query['message'];
   $data = $callback_query['data'];
   $first_name = $callback_query['from']['first_name']; // Get the user's first name
 
   if ($data === 'start') {
-    startCommands($chat_id, $first_name);
+    //startCommands($chat_id, $first_name);
+    
+    apiRequest("sendMessage", array('chat_id' => $chat_id, "text" =>  "Hello $first_name! How are you doing? 😄. Below are the new event details 👏"));
+    // processEventInfoMessage($message);
+    $eventDetails = getEventDetails();
+    apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => $eventDetails, "parse_mode" => "HTML"));
+    //sendHelpMessage($chat_id, $first_name);
+    
   } elseif ($data === 'help') {
     processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/help'));
   } elseif ($data === 'register') {
