@@ -1,9 +1,5 @@
 <?php
 
-// define('REGISTRATION_FILE', 'registration_steps.json'); // File to store registration data
-// require_once 'group_invitation.php';
-// require_once 'utils/database.php';
-
 define('REGISTRATION_FILE', 'registration_steps.json'); // File to store registration data
 require_once __DIR__ . '/group_invitation.php';
 require_once __DIR__ . '/database.php';
@@ -75,6 +71,18 @@ function continueRegistration($message) {
             // Check if the input is a number
             if (is_numeric($text)) {
                 $registrationSteps[$chat_id]['tickets'] = $text;
+                $registrationSteps[$chat_id]['step'] = 4;
+                saveRegistrationSteps($registrationSteps); // Save the state
+                $name = $registrationSteps[$chat_id]['name'];
+                $email = $registrationSteps[$chat_id]['email'];
+                $tickets = $registrationSteps[$chat_id]['tickets'];
+                apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => "Please confirm your registration:\nName: $name\nEmail: $email\nTickets: $tickets\n\nDo you want to proceed? Type 'yes' to confirm or 'no' to cancel."));
+            } else {
+                apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'Please enter a valid number.'));
+            }
+        } else if ($step == 4) {
+            // Check user confirmation
+            if (strtolower($text) === 'yes') {
                 $name = $registrationSteps[$chat_id]['name'];
                 $email = $registrationSteps[$chat_id]['email'];
                 $tickets = $registrationSteps[$chat_id]['tickets'];
@@ -94,12 +102,18 @@ function continueRegistration($message) {
 
                 // Add user to group
                 inviteUserToGroup($chat_id);
-                
+
+                // Reset the registration process for this user
+                unset($registrationSteps[$chat_id]);
+                saveRegistrationSteps($registrationSteps); // Save the state
+            } else if (strtolower($text) === 'no') {
+                // Cancel registration
+                apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => "Registration process cancelled."));
                 // Reset the registration process for this user
                 unset($registrationSteps[$chat_id]);
                 saveRegistrationSteps($registrationSteps); // Save the state
             } else {
-                apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'Please enter a valid number.'));
+                apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => "Please type 'yes' to confirm or 'no' to cancel."));
             }
         }
     }

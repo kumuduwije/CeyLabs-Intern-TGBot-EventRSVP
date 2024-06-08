@@ -8,6 +8,7 @@
 - A publicly accessible webhook URL.
 
 
+
 ### Steps to Set Up the Bot
 
 1. **Clone the Repository:**
@@ -43,6 +44,9 @@
   ```
     vendor/bin/phpunit tests/
   ```
+## Additional features
+- Suggest Bot commands in the Telegram app.
+- User can cancel the registration process.
 
 ## 🎉 Experience the Bot
 
