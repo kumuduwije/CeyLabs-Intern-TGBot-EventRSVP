@@ -1,6 +1,21 @@
 <?php
 
-$config = json_decode(file_get_contents('config.json'), true);
+// $config = json_decode(file_get_contents('/src/config.json'), true);
+$configFile =  __DIR__ . '/config.json';
+
+// Check if the config file exists
+if (!file_exists($configFile)) {
+  die("Error: config.json file not found!");
+}
+
+// Load and decode the config file
+$configContent = file_get_contents($configFile);
+$config = json_decode($configContent, true);
+
+// Check for JSON errors
+if (json_last_error() !== JSON_ERROR_NONE) {
+    die("Error: Invalid JSON in config.json");
+}
 
 // Access configs from config.json
 define('BOT_TOKEN', $config['bot_token']);
