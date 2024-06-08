@@ -30,6 +30,13 @@
       "webhook_url": "YOUR_WEBHOOK_URL",
     } 
     ```
+4. **Check the Configuration:**
+
+    To ensure that the application is set up correctly, you need to verify the configuration. This can be done by running a specific PHP script:
+
+    ```
+     php src/main.php
+    ```
 ### Run Tests:
    
    To run the tests, use the following command:
@@ -37,7 +44,7 @@
     vendor/bin/phpunit tests/
   ```
 
-## Join Our Telegram Channel
+## 🎉 Experience the Bot
 
 We have created a Telegram group for testing, discussions, and support related to this project. Feel free to join the group to collaborate with other users and developers, ask questions, and share your feedback.
 

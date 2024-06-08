@@ -1,6 +1,6 @@
 <?php
 
-// Ensure the path points to the correct location of config.json
+// Path to config.json
 $config = json_decode(file_get_contents(__DIR__ . '/../config.json'), true);
 
 if ($config === null) {

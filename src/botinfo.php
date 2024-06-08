@@ -1,14 +1,33 @@
 <?php
 
-$BOT_TOKEN = "7245509649:AAFmNUn07iZaMZfroczuoK6CKEV0ZR1kXW0";
-$API_URL = "https://api.telegram.org/bot{$BOT_TOKEN}/getMe";
 
-$response = file_get_contents($API_URL);
+$configFile =  __DIR__ . '/config.json';
 
-$Webhook_URL = "https://wijewardeneindustries.com/EventTicketingTelegramBot/main.php";
-$webhook_api = "https://api.telegram.org/bot{$BOT_TOKEN}/setWebhook?url={$Webhook_URL}";
-$webhook_response = file_get_contents($Webhook_URL);
+// Check if the config file exists
+if (!file_exists($configFile)) {
+  die("Error: config.json file not found!");
+}
 
+// Load and decode the config file
+$configContent = file_get_contents($configFile);
+$config = json_decode($configContent, true);
+
+// Check for JSON errors
+if (json_last_error() !== JSON_ERROR_NONE) {
+    die("Error: Invalid JSON in config.json");
+}
+
+// Access configs from config.json
+define('BOT_TOKEN', $config['bot_token']);
+define('BOT_USERNAME', $config['bot_username']);
+define('API_URL', 'https://api.telegram.org/bot'.$config['bot_token'].'/getme');
+define("WEBHOOK_URL", $config['webhook_url']);
+
+
+$response = file_get_contents(API_URL);
+
+$webhook_api = "https://api.telegram.org/bot".BOT_TOKEN."/setWebhook?url=".WEBHOOK_URL;
+$webhook_response = file_get_contents(WEBHOOK_URL);
 echo $webhook_response;
 
 
