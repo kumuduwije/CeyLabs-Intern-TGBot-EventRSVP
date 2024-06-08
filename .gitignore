@@ -1,0 +1,6 @@
+/vendor/
+.phpunit.result.cache
+*log
+
+#ignore test.php
+test.php
