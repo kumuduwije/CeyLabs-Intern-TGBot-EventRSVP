@@ -221,8 +221,8 @@ function sendHelpMessage($chat_id,$first_name) {
         'reply_markup' => json_encode(array(
             'inline_keyboard' => [
                 [['text' => '📅 Start - Greet & Event Details', 'callback_data' => 'start']],
-                [['text' => 'ℹ️ Help - Bot use instructions', 'callback_data' => 'help']],
                 [['text' => '📝 Register - Register for the event', 'callback_data' => 'register']],
+                [['text' => 'ℹ️ Help - Bot use instructions', 'callback_data' => 'help']],
                 // [['text' => '📋 Event Info', 'callback_data' => 'eventInfo']]
             ]
         ))
@@ -272,7 +272,7 @@ function processMessage($message) {
     } else { // if user entered something else
         
       apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => "Sorry! $first_name, I don't understand. Try to use bellow commands."));
-      sendHelpMessage($chat_id, $first_name); // Call /help command function
+      sendHelpMessage($chat_id,$first_name); // Call /help command function
       
     }
   } else {
@@ -296,7 +296,8 @@ function processCallbackQuery($callback_query) {
     //sendHelpMessage($chat_id, $first_name);
     
   } elseif ($data === 'help') {
-    processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/help'));
+      sendHelpMessage($chat_id, $first_name);
+    // processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/help'));
   } elseif ($data === 'register') {
     processMessage(array('message_id' => $callback_query['message']['message_id'], 'chat' => array('id' => $chat_id), 'text' => '/register'));
   } elseif ($data === 'eventInfo') {
